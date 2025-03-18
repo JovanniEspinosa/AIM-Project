@@ -8,9 +8,9 @@
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(isset($_POST['login'])){
             $username = $_POST['username'];
-            $password = $_POST['password'];
+            $pass = $_POST['pass'];
 
-        $login_sql = "SELECT * FROM user WHERE username = '$username' AND password = '$password'";
+        $login_sql = "SELECT * FROM user WHERE username = '$username' AND pass = '$pass'";
 
         $loginResult = mysqli_query(mysql:$conn,query: $login_sql);
         $loginCountRow = mysqli_num_rows(result: $loginResult);
