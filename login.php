@@ -9,7 +9,7 @@
             $loginUname = $_POST['loginUname'];
             $loginPword = $_POST['loginPword'];
 
-        $login_sql = "SELECT * FROM user WHERE username = '$loginUname' AND password = '$loginPword'";
+        $login_sql = "SELECT * FROM user WHERE username = '$username' AND password = '$pass'";
 
         $loginResult = mysqli_query(mysql:$conn,query: $login_sql);
         $loginCountRow = mysqli_num_rows(result: $loginResult);
