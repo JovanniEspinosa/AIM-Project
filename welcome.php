@@ -91,7 +91,7 @@
     </style>
 </head>
 <body>
-    <h1>Welcome, <?php echo isset($_SESSION['first_name']) ? $_SESSION['first_name'] . " " . $_SESSION['last_name'] : "Master"; ?>!</h1>
+    <h1>HELLO!</h1>
     <div class="logout">
         <a href="login.php">Logout</a>
     </div>
