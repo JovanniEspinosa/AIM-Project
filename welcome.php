@@ -103,6 +103,7 @@
             <th>Last Name</th>
             <th>Contact Number</th>
             <th>Username</th>
+            <th>Password</th>
             <th>Action</th>
         </tr>
         
@@ -115,6 +116,8 @@
                         <td>{$row['last_name']}</td>
                         <td>{$row['contact_number']}</td>
                         <td>{$row['username']}</td>
+                        <td>{$row['password']}</td>
+
                         <td>
                             <form method='POST' style='display:inline;'>
                                 <input type='hidden' name='id' value='{$row['id']}'>

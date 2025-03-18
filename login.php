@@ -1,15 +1,16 @@
 <?php
- include 'connection.php';
  session_start();
+ include 'connection.php';
+ 
 
  $err = "";
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(isset($_POST['login'])){
             $username = $_POST['username'];
-            $password = $_POST['pass'];
+            $password = $_POST['password'];
 
-        $login_sql = "SELECT * FROM user WHERE username = '$username' AND password = '$pass'";
+        $login_sql = "SELECT * FROM user WHERE username = '$username' AND password = '$password'";
 
         $loginResult = mysqli_query(mysql:$conn,query: $login_sql);
         $loginCountRow = mysqli_num_rows(result: $loginResult);
@@ -19,7 +20,7 @@
             header(header: "Location: welcome.php");
             exit();
         }else{
-            $err="login invalid!";
+            $err="Login Invalid!";
         }
     }
 }
