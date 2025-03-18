@@ -6,8 +6,8 @@
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(isset($_POST['login'])){
-            $loginUname = $_POST['loginUname'];
-            $loginPword = $_POST['loginPword'];
+            $username = $_POST['username'];
+            $password = $_POST['pass'];
 
         $login_sql = "SELECT * FROM user WHERE username = '$username' AND password = '$pass'";
 
@@ -15,7 +15,7 @@
         $loginCountRow = mysqli_num_rows(result: $loginResult);
 
         if($loginCountRow == 1) {
-            $_SESSION['username'] = $loginUname;
+            $_SESSION['username'] = $username;
             header(header: "Location: welcome.php");
             exit();
         }else{
