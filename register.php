@@ -32,7 +32,7 @@
                         }else{
                             $err = "Error Adding Account!";          
                         }
-                        
+
                     }
                 }   
 
@@ -93,6 +93,7 @@
 </head>
 <body>
     <h1>Registration Form</h1>
+   
     <form action="" method="POST">
 
         <input type="text" name="fname" placeholder="First Name"> <br>
@@ -101,7 +102,7 @@
         <input type="text" name="user" placeholder="Username" > <br>
         <input type="password" name="pass" placeholder="Password" > <br>
         <button type="submit" name="insert">Register</button>
-
+        <p>Already have an account? <a href="login.php">Login</a></p>
     </form>
 </body>
 </html
