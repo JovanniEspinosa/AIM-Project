@@ -81,7 +81,7 @@
         <p>Please fill in your credentials to login.</p>
             <form method="POST">
                  <label for="">Username</label>
-        <input type="text" name="user" placeholder="username@gmail.com" > <br>
+        <input type="text" name="user" placeholder="Username" > <br>
         <label for="">Password</label>
         <input type="password" name="pass" placeholder="Password" > <br>
         <button type="submit" >LOG IN</button>
