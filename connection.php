@@ -5,7 +5,7 @@
     $db_password ="";
     $db_name ="user_database";
     $conn = "";
-
+     
    try {
     $conn = mysqli_connect(
         $db_server,
@@ -21,7 +21,7 @@
    }
 
    if($conn){
-        echo"Connected to Database";
+     //    echo"Connected to Database";
    }
    else {
         echo "Connection Failed";

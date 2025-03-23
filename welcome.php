@@ -123,11 +123,11 @@
                                 <input type='hidden' name='id' value='{$row['id']}'>
                                 <button type='submit' name='delete' style='background-color: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer;'>Delete</button>
                             </form>
-                            <form method='POST' style='display:inline;'>
+                           <form method='POST' action='userUpdate.php' style='display:inline;'>
                                 <input type='hidden' name='id' value='{$row['id']}'>
-                                <input type='text' name='username' placeholder='New Username' required>
-                                <button type='submit' name='update' style='background-color: #f0ad4e; color: white; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>
-                            </form>
+                                <button type='submit' name='edit' style='background-color: #f0ad4e; color: white; border: none; padding: 5px 10px; cursor: pointer;'>Edit</button>
+                             </form>
+
                         </td>
                     </tr>";
             }
