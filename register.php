@@ -13,23 +13,18 @@
             if(empty($fName) || empty($lName) || empty($conNum) || empty($uName) || empty($pWord)){
                 $err = "All fields are required!";
             } else {
-                $checkData_sql = "SELECT * FROM user WHERE username = ?";   
-                $stmt = $conn->prepare($checkData_sql);
-                $stmt->bind_param("s", $uName);
-                $stmt->execute();
-                $result = $stmt->get_result();
+                $checkData_sql = "SELECT * FROM user WHERE username = '$uName'";   
+                $result = mysqli_query($conn, $checkData_sql);
 
-                if($result->num_rows > 0){
+                if(mysqli_num_rows($result) > 0){
                     $err = "Username already exists! Please choose a different username.";
                 } else {
                     if(strlen($conNum) != 11){
                         $err = "Invalid Contact Number!";
                     } else {
-                        $insert_sql = "INSERT INTO user (first_name, last_name, contact_number, username, password) VALUES (?, ?, ?, ?, ?)";
-                        $stmt = $conn->prepare($insert_sql);
-                        $stmt->bind_param("sssss", $fName, $lName, $conNum, $uName, $pWord);
+                        $insert_sql = "INSERT INTO user (first_name, last_name, contact_number, username, password) VALUES ('$fName', '$lName', '$conNum', '$uName', '$pWord')";
 
-                        if($stmt->execute()){
+                        if(mysqli_query($conn, $insert_sql)){
                             $err = "New Account Added!";
                             header("location: login.php");
                             exit();
