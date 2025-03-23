@@ -1,134 +1,128 @@
 <?php
-    include 'connection.php';
-    session_start();
-    $err = "";
+session_start();
+include 'connection.php';
 
-    if(isset($_GET['id'])) {
-        $id = (int)$_GET['id'];
-        $result = mysqli_query($conn, "SELECT * FROM user WHERE id = '$id'");
+if (!isset($_POST['id'])) {
+    header('Location: welcome.php');
+    exit();
+}
 
-        if (mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            $fName = $row['first_name'];
-            $lName = $row['last_name'];
-            $conNum = $row['contact_number'];
-            $uName = $row['username'];
+$id = $_POST['id'];
+$result = mysqli_query($conn, "SELECT * FROM user WHERE id=$id");
+$user = mysqli_fetch_assoc($result);
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] == 'POST' && isset($_POST['update'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $contact_number = $_POST['contact_number'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    if (!$first_name || !$last_name || !$contact_number || !$username) {
+        $error = "All fields are required.";
+    } elseif (!is_numeric($contact_number) || strlen($contact_number) < 11) {
+        $error = "Invalid contact number.";
+    } else {
+        $check_username = mysqli_query($conn, "SELECT id FROM user WHERE username='$username' AND id != $id");
+        if (mysqli_num_rows($check_username) > 0) {
+            $error = "Username already taken.";
         } else {
-            $err = "User not found.";
-        }
-    }
-
-    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateData'])){
-        $fName = trim($_POST['fname']);
-        $lName = trim($_POST['lname']);
-        $conNum = trim($_POST['contact']);
-        $uName = trim($_POST['user']);
-        $pWord = trim($_POST['pass']);
-
-        if(empty($fName) || empty($lName) || empty($conNum) || empty($uName)){
-            $err = "All fields are required!";
-        } elseif(!preg_match('/^[0-9]{11}$/', $conNum)){
-            $err = "Invalid Contact Number! Must be 11 digits.";
-        } else {
-            $check_user_query = "SELECT * FROM user WHERE username = '$uName' AND id != '$id'";
-            $result = mysqli_query($conn, $check_user_query);
-
-            if(mysqli_num_rows($result) > 0){
-                $err = "Username already exists! Please choose a different username.";
+            if (!empty($password)) {
+                $update_sql = "UPDATE user SET first_name='$first_name', last_name='$last_name', contact_number='$contact_number', username='$username', password='$password' WHERE id=$id";
             } else {
-                if (!empty($pWord)) {
-                    $hashedPassword = password_hash($pWord, PASSWORD_BCRYPT);
-                    $update_query = "UPDATE user SET first_name='$fName', last_name='$lName', contact_number='$conNum', username='$uName', password='$hashedPassword' WHERE id='$id'";
-                } else {
-                    $update_query = "UPDATE user SET first_name='$fName', last_name='$lName', contact_number='$conNum', username='$uName' WHERE id='$id'";
-                }
-
-                if(mysqli_query($conn, $update_query)){
-                    header("location: welcome.php");
-                    exit();
-                } else {
-                    $err = "Error Updating Account: " . mysqli_error($conn);
-                }
+                $update_sql = "UPDATE user SET first_name='$first_name', last_name='$last_name', contact_number='$contact_number', username='$username' WHERE id=$id";
             }
+            mysqli_query($conn, $update_sql);
+            header("Location: welcome.php");
+            exit();
         }
     }
+}
 ?>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Account</title>
+    <title>Edit User</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        h1 {
+        .edit-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 350px;
             text-align: center;
+        }
+        h2 {
             margin-bottom: 20px;
-        }
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
-            background-color: rgb(0, 213, 255);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #75e6da;
+            color: #333;
         }
         .error {
             color: red;
-            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h1>Update Account</h1>
-    <?php if ($err): ?>
-        <p class="error"> <?php echo $err; ?> </p>
-    <?php endif; ?>
-    <form action="" method="POST">
-        <label>First Name:</label>
-        <input type="text" name="fname" value="<?php echo htmlspecialchars($fName); ?>" required>
-
-        <label>Last Name:</label>
-        <input type="text" name="lname" value="<?php echo htmlspecialchars($lName); ?>" required>
-
-        <label>Contact Number:</label>
-        <input type="text" name="contact" value="<?php echo htmlspecialchars($conNum); ?>" required>
-
-        <label>Username:</label>
-        <input type="text" name="user" value="<?php echo htmlspecialchars($uName); ?>" required>
-
-        <label>Password (Leave blank to keep current password):</label>
-        <input type="password" name="pass">
-
-        <button type="submit" name="updateData">Update</button>
-    </form>
+    <div class="edit-container">
+        <h2>Edit User</h2>
+        <?php if ($error) echo "<p class='error'>$error</p>"; ?>
+        <form method="POST">
+            <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+            <input type="text" name="first_name" value="<?php echo $user['first_name']; ?>" placeholder="First Name" required>
+            <input type="text" name="last_name" value="<?php echo $user['last_name']; ?>" placeholder="Last Name" required>
+            <input type="text" name="contact_number" value="<?php echo $user['contact_number']; ?>" placeholder="Contact Number" required>
+            <input type="text" name="username" value="<?php echo $user['username']; ?>" placeholder="Username" required>
+            <input type="text" name="password" value="<?php echo $user['password']; ?>" placeholder="Password">
+            <button type="submit" name="update" class="btn">Update</button>
+        </form>
+        <a href="welcome.php" class="back-link">Back to Welcome</a>
+    </div>
 </body>
 </html>
