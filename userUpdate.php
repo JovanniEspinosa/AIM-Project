@@ -1,147 +1,134 @@
 <?php
-include 'connection.php';
-session_start();
+    include 'connection.php';
+    session_start();
+    $err = "";
 
-$id = "";
-$err = "";
+    if(isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+        $result = mysqli_query($conn, "SELECT * FROM user WHERE id = '$id'");
 
-// Check if ID is passed via POST or GET
-if (isset($_POST['id'])) {
-    $id = $_POST['id'];
-} elseif (isset($_GET['id'])) {
-    $id = $_GET['id'];
-} else {
-    $err = "No ID received.";
-}
-
-// Fetch user data only if ID is available
-$row = ['first_name' => '', 'last_name' => '', 'contact_number' => '', 'username' => '', 'pass' => '']; // Default values
-
-if (!empty($id)) {
-    $getData = "SELECT * FROM user WHERE id = $id";
-    $result = $conn->query($getData);
-
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-    } else {
-        $err = "User not found.";
-    }
-}
-
-// Update user data
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateData'])) {
-    $newfname = $_POST['fname'];
-    $newlname = $_POST['lname'];
-    $newcontactnumber = $_POST['contact'];
-    $newUsername = $_POST['user'];
-    $newPassword = $_POST['pass'];
-
-    if (empty($newfname) || empty($newlname) || empty($newcontactnumber) || empty($newUsername) || empty($newPassword)) {
-        $err = "Please fill up all fields";
-    } else {
-        $checkData_sql = "SELECT * FROM user WHERE username = '$newUsername' AND id != $id";
-        $result = $conn->query($checkData_sql);
-        $regCountrow = mysqli_num_rows($result);
-
-        if ($regCountrow > 0) {
-            $err = "Username already exists";
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $fName = $row['first_name'];
+            $lName = $row['last_name'];
+            $conNum = $row['contact_number'];
+            $uName = $row['username'];
         } else {
-            $update_sql = "UPDATE user SET first_name = '$newfname', last_name = '$newlname', contact_number = '$newcontactnumber', username = '$newUsername', pass = '$newPassword' WHERE id = $id";
-            $conn->query($update_sql);
-
-            header("Location: welcome.php");
-            exit();
+            $err = "User not found.";
         }
     }
-}
-?>
 
-<!DOCTYPE html>
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateData'])){
+        $fName = trim($_POST['fname']);
+        $lName = trim($_POST['lname']);
+        $conNum = trim($_POST['contact']);
+        $uName = trim($_POST['user']);
+        $pWord = trim($_POST['pass']);
+
+        if(empty($fName) || empty($lName) || empty($conNum) || empty($uName)){
+            $err = "All fields are required!";
+        } elseif(!preg_match('/^[0-9]{11}$/', $conNum)){
+            $err = "Invalid Contact Number! Must be 11 digits.";
+        } else {
+            $check_user_query = "SELECT * FROM user WHERE username = '$uName' AND id != '$id'";
+            $result = mysqli_query($conn, $check_user_query);
+
+            if(mysqli_num_rows($result) > 0){
+                $err = "Username already exists! Please choose a different username.";
+            } else {
+                if (!empty($pWord)) {
+                    $hashedPassword = password_hash($pWord, PASSWORD_BCRYPT);
+                    $update_query = "UPDATE user SET first_name='$fName', last_name='$lName', contact_number='$conNum', username='$uName', password='$hashedPassword' WHERE id='$id'";
+                } else {
+                    $update_query = "UPDATE user SET first_name='$fName', last_name='$lName', contact_number='$conNum', username='$uName' WHERE id='$id'";
+                }
+
+                if(mysqli_query($conn, $update_query)){
+                    header("location: welcome.php");
+                    exit();
+                } else {
+                    $err = "Error Updating Account: " . mysqli_error($conn);
+                }
+            }
+        }
+    }
+?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User</title>
+    <title>Update Account</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            padding: 20px;
             background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 50px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
         }
         h1 {
-            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        p.error {
-            color: red;
-            font-size: 14px;
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         label {
             display: block;
             margin-top: 10px;
-            text-align: left;
-            font-weight: bold;
         }
-        input {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
-            border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 14px;
+            border: 1px solid #ccc;
         }
         button {
+            width: 100%;
+            padding: 10px;
             margin-top: 15px;
-            background-color: #189AB4;
+            background-color: rgb(0, 213, 255);
             color: white;
             border: none;
-            padding: 10px;
-            width: 100%;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
         button:hover {
-            background-color: #10737f;
+            background-color: #75e6da;
+        }
+        .error {
+            color: red;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Update Account</h1>
-        <?php if (!empty($err)) { echo "<p class='error'>$err</p>"; } ?>
-        <form method="POST">
-            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id); ?>">
-            
-            <label>First Name:</label>
-            <input type="text" name="fname" value="<?php echo htmlspecialchars($row['first_name']); ?>" required>
+    <h1>Update Account</h1>
+    <?php if ($err): ?>
+        <p class="error"> <?php echo $err; ?> </p>
+    <?php endif; ?>
+    <form action="" method="POST">
+        <label>First Name:</label>
+        <input type="text" name="fname" value="<?php echo htmlspecialchars($fName); ?>" required>
 
-            <label>Last Name:</label>
-            <input type="text" name="lname" value="<?php echo htmlspecialchars($row['last_name']); ?>" required>
+        <label>Last Name:</label>
+        <input type="text" name="lname" value="<?php echo htmlspecialchars($lName); ?>" required>
 
-            <label>Contact Number:</label>
-            <input type="text" name="contact" value="<?php echo htmlspecialchars($row['contact_number']); ?>" required>
+        <label>Contact Number:</label>
+        <input type="text" name="contact" value="<?php echo htmlspecialchars($conNum); ?>" required>
 
-            <label>Username:</label>
-            <input type="text" name="user" value="<?php echo htmlspecialchars($row['username']); ?>" required>
+        <label>Username:</label>
+        <input type="text" name="user" value="<?php echo htmlspecialchars($uName); ?>" required>
 
-            <label>Password:</label>
-            <input type="password" name="pass" value="<?php echo ($row['pass']); ?>" required>
+        <label>Password (Leave blank to keep current password):</label>
+        <input type="password" name="pass">
 
-            <button type="submit" name="updateData">Update</button>
-        </form>
-    </div>
+        <button type="submit" name="updateData">Update</button>
+    </form>
 </body>
 </html>

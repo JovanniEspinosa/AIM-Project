@@ -89,6 +89,11 @@
             background-color: #c9302c;
         }
     </style>
+    <script>
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this account?');
+        }
+    </script>
 </head>
 <body>
     <h1>HELLO!</h1>
@@ -119,7 +124,7 @@
                         <td>{$row['password']}</td>
 
                         <td>
-                            <form method='POST' style='display:inline;'>
+                            <form method='POST' style='display:inline;' onsubmit='return confirmDelete();'>
                                 <input type='hidden' name='id' value='{$row['id']}'>
                                 <button type='submit' name='delete' style='background-color: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer;'>Delete</button>
                             </form>

@@ -4,38 +4,40 @@
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(ISSET($_POST['insert'])){
-            $fName = $_POST['fname'];
-            $lName = $_POST['lname'];
-            $conNum = $_POST['contact'];
-            $uName = $_POST['user'];
-            $pWord = $_POST['pass'];
+            $fName = trim($_POST['fname']);
+            $lName = trim($_POST['lname']);
+            $conNum = trim($_POST['contact']);
+            $uName = trim($_POST['user']);
+            $pWord = trim($_POST['pass']);
 
             if(empty($fName) || empty($lName) || empty($conNum) || empty($uName) || empty($pWord)){
                 $err = "All fields are required!";
+            } else {
+                $checkData_sql = "SELECT * FROM user WHERE username = ?";   
+                $stmt = $conn->prepare($checkData_sql);
+                $stmt->bind_param("s", $uName);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-        }else{
-            $checkData_sql = "SELECT * FROM user WHERE username = '$uName'";   
-            $checkingData = $conn -> query($checkData_sql);
-            $regCountrow = mysqli_num_rows($checkingData);
-                if($refCounRow > 0){
-                    $err = "Username already exists!";
-                }else{
+                if($result->num_rows > 0){
+                    $err = "Username already exists! Please choose a different username.";
+                } else {
                     if(strlen($conNum) != 11){
                         $err = "Invalid Contact Number!";
-                    }else{
-                        $insert_sql = "INSERT INTO user (first_name, last_name, contact_number, username, password) VALUES ('$fName', '$lName', '$conNum', '$uName', '$pWord')";
-                        $result = $conn -> query($insert_sql);
-                        if($result){
+                    } else {
+                        $insert_sql = "INSERT INTO user (first_name, last_name, contact_number, username, password) VALUES (?, ?, ?, ?, ?)";
+                        $stmt = $conn->prepare($insert_sql);
+                        $stmt->bind_param("sssss", $fName, $lName, $conNum, $uName, $pWord);
+
+                        if($stmt->execute()){
                             $err = "New Account Added!";
                             header("location: login.php");
                             exit();
-                        }else{
+                        } else {
                             $err = "Error Adding Account!";          
                         }
-
                     }
                 }   
-
             }
         }
     }
@@ -89,13 +91,18 @@
         button:hover {
             background-color: #75e6da;
         }
+        .error {
+            color: red;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <h1>Registration Form</h1>
-   
+    <?php if ($err): ?>
+        <p class="error"> <?php echo $err; ?> </p>
+    <?php endif; ?>
     <form action="" method="POST">
-
         <input type="text" name="fname" placeholder="First Name"> <br>
         <input type="text" name="lname" placeholder="Last Name"> <br>
         <input type="number" name="contact" placeholder="Contact Number"> <br>
@@ -105,4 +112,4 @@
         <p>Already have an account? <a href="login.php">Login</a></p>
     </form>
 </body>
-</html
+</html>
